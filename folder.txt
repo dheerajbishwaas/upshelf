@@ -1,0 +1,34 @@
+UpShelf/
+├── public/                         
+│
+├── src/
+│   ├── app/                        
+│   │   ├── api/                    
+│   │   │   ├── products/           
+│   │   │   │   └── route.ts        # Example API
+│   │   │   └── users/
+│   │   │       └── route.ts
+│   │   ├── page.tsx                
+│   │   ├── layout.tsx              
+│   │   └── globals.css             
+│   │
+│   ├── components/                 
+│   │   ├── Navbar.tsx
+│   │   └── ProductCard.tsx
+│   │
+│   ├── lib/                        
+│   │   ├── db.ts                   # Sequelize connection
+│   │   ├── models/                 
+│   │   │   ├── product.model.ts
+│   │   │   └── index.ts
+│   │   └── utils.ts
+│   │
+│   ├── types/                      
+│   │   └── product.d.ts
+│
+├── .env.local                      
+├── package.json
+├── tsconfig.json
+├── next.config.mjs
+├── tailwind.config.ts
+└── postcss.config.mjs
