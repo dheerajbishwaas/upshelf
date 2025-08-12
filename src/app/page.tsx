@@ -1,27 +1,51 @@
 'use client';
-import { useEffect, useState } from 'react';
 
-type Product = { id: number; name: string; price: number };
+import { useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import createApp from '@shopify/app-bridge';
 
-export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function HomePage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const shop = searchParams.get('shop');
+  const host = searchParams.get('host');
 
   useEffect(() => {
-    fetch('/api/products')
-      .then((res) => res.json())
-      .then(setProducts);
-  }, []);
+    if (!shop) {
+      router.replace('/error?message=Missing shop parameter');
+      return;
+    }
+
+    if (!host) {
+      router.replace('/error?message=Missing host parameter');
+      return;
+    }
+
+    // Shopify App Bridge init
+    const app = createApp({
+      apiKey: process.env.NEXT_PUBLIC_SHOPIFY_API_KEY!,
+      shopOrigin: shop,
+      host: host,
+      forceRedirect: true,
+    });
+
+    (async () => {
+      const res = await fetch(`/api/check-install?shop=${shop}`);
+      const data = await res.json();
+
+      if (!data.installed) {
+        window.location.href = `/api/install?shop=${shop}`;
+      }
+    })();
+
+  }, [shop, host, router]);
 
   return (
-    <main className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Products</h1>
-      <ul className="space-y-2">
-        {products.map((p) => (
-          <li key={p.id} className="p-3 border rounded">
-            {p.name} — ₹{p.price}
-          </li>
-        ))}
-      </ul>
-    </main>
+    <div>
+      <h1>Welcome to UpShelf</h1>
+      <p>Shop: {shop}</p>
+      <p>Host: {host}</p>
+    </div>
   );
 }
