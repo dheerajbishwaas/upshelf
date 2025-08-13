@@ -35,13 +35,16 @@ export default function HomePage() {
       forceRedirect: true,
     });
 
-
     (async () => {
-      const res = await fetch(`/api/check-install?shop=${shop}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`/api/check-install?shop=${shop}`);
+        const data = await res.json();
 
-      if (!data.installed) {
-        window.location.href = `/api/install?shop=${shop}`;
+        if (!data.installed) {
+          window.location.href = `/api/install?shop=${shop}`;
+        }
+      } catch (error) {
+        setMessage('Error checking install status.');
       }
     })();
   }, [shop, host, router]);
@@ -58,7 +61,7 @@ export default function HomePage() {
       const contentType = res.headers.get('content-type') || '';
       if (!contentType.includes('application/json')) {
         const text = await res.text(); // fallback: read text for debugging
-        throw new Error(`Expected JSON but got: ${text.substring(0, 200)}`); // first 200 chars
+        throw new Error(`Expected JSON but got: ${text.substring(0, 200)}`);
       }
 
       const data = await res.json();
@@ -112,8 +115,9 @@ export default function HomePage() {
         <button
           onClick={handleImportProducts}
           disabled={loadingProducts}
-          className={`px-5 py-3 rounded-md text-white font-semibold transition ${loadingProducts ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-            }`}
+          className={`px-5 py-3 rounded-md text-white font-semibold transition ${
+            loadingProducts ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+          }`}
         >
           {loadingProducts ? 'Importing Products...' : 'Import Products'}
         </button>
@@ -121,8 +125,9 @@ export default function HomePage() {
         <button
           onClick={handleSyncOrders}
           disabled={loadingOrders}
-          className={`px-5 py-3 rounded-md text-white font-semibold transition ${loadingOrders ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-            }`}
+          className={`px-5 py-3 rounded-md text-white font-semibold transition ${
+            loadingOrders ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
           {loadingOrders ? 'Syncing Orders...' : 'Sync Orders'}
         </button>
@@ -130,8 +135,9 @@ export default function HomePage() {
 
       {message && (
         <div
-          className={`p-4 rounded-md text-sm font-medium ${message.startsWith('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`}
+          className={`p-4 rounded-md text-sm font-medium ${
+            message.startsWith('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+          }`}
           role="alert"
         >
           {message}
