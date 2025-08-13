@@ -57,12 +57,13 @@ export async function GET(request: Request) {
     try {
       data = JSON.parse(text);
     } catch (err) {
+      console.error("Error parsing JSON:", err);
       return NextResponse.json({ error: 'Invalid JSON response from Shopify', raw: text }, { status: 500 });
     }
 
     if (data.access_token) {
       // Save or update the store in DB
-    
+
       await Store.upsert({
         shop,
         access_token: data.access_token,
@@ -77,7 +78,10 @@ export async function GET(request: Request) {
     } else {
       return NextResponse.json({ error: 'Failed to get token', details: data }, { status: 400 });
     }
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ error: 'Unknown error' }, { status: 500 });
   }
 }
