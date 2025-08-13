@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     const store = await Store.findOne({ where: { shop } });
     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
 
-    const orders = await fetchOrders(shop, store.accessToken);
+    const orders = await fetchOrders(shop, store.access_token);
     await saveOrders(shop, orders);
 
     return NextResponse.json({ message: 'Orders synced successfully' }, { status: 200 });
