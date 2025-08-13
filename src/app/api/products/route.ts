@@ -55,9 +55,10 @@ export async function POST(request: Request) {
       // For variants, usually array; take first variant as main or aggregate data as needed
       const firstVariant = p.variants[0] || {};
 
-      // Sum inventory quantity from all variants
-      const totalInventory = p.variants.reduce((acc, v) => acc + (v.inventory_quantity || 0), 0);
-
+      const totalInventory = p.variants.reduce(
+        (acc: number, v: { inventory_quantity?: number }) => acc + (v.inventory_quantity || 0),
+        0
+      );
       await Product.upsert({
         externalProductId: p.id,
         store_id: store.id,
