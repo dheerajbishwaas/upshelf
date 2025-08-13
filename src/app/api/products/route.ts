@@ -100,7 +100,10 @@ export async function POST(request: Request) {
         image_src: p.images[0]?.src || null,
         image_position: p.images[0]?.position || null,
         image_alt_text: p.images[0]?.alt || null,
-        variant_image: firstVariant.image_id ? p.images.find(img => img.id === firstVariant.image_id)?.src : null,
+        variant_image: firstVariant.image_id
+          ? p.images.find((img: { id: number; src: string }) => img.id === firstVariant.image_id)?.src
+          : null,
+
 
         // Gift card flag
         gift_card: p.tags?.toLowerCase().includes('gift card') || false,
