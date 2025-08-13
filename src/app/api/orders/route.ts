@@ -3,10 +3,10 @@ import sequelize from '@/lib/db';
 import Order from '@/lib/models/order.model';
 import Store from '@/lib/models/store.model';
 
-async function fetchOrders(shop: string, accessToken: string) {
+async function fetchOrders(shop: string, access_token: string) {
   const response = await fetch(`https://${shop}/admin/api/2023-07/orders.json?status=any`, {
     headers: {
-      'X-Shopify-Access-Token': accessToken,
+      'X-Shopify-Access-Token': access_token,
       'Content-Type': 'application/json',
     },
   });
