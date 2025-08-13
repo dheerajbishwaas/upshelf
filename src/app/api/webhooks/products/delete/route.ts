@@ -44,8 +44,8 @@ export async function POST(req: Request) {
     console.log(`🗑️ Soft deleted ${deletedCount} product(s) for store: ${shop}`);
 
     return NextResponse.json({ success: true, deletedCount }, { status: 200 });
-  } catch (error: any) {
-    console.error("❌ Product delete webhook failed:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+   const e = error as { message?: string };
+    return NextResponse.json({ error: e.message || 'Unknown error' }, { status: 500 });
   }
 }
