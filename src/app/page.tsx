@@ -66,8 +66,9 @@ export default function HomePage() {
       } else {
         setMessage(`❌ Error importing products: ${data.error || 'Unknown error'}`);
       }
-    } catch (error: any) {
-      setMessage(`❌ Error: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      setMessage(`Error: ${err.message || "Unknown error"}`);
     } finally {
       setLoadingProducts(false);
     }
@@ -88,8 +89,9 @@ export default function HomePage() {
       } else {
         setMessage(`❌ Error syncing orders: ${data.error || 'Unknown error'}`);
       }
-    } catch (error: any) {
-      setMessage(`❌ Error: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      setMessage(`Error: ${err.message || "Unknown error"}`);
     } finally {
       setLoadingOrders(false);
     }

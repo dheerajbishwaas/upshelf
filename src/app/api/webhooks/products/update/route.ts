@@ -32,7 +32,8 @@ export async function POST(req: Request) {
     // Variants data
     const firstVariant = p.variants?.[0] || {};
     const totalInventory = p.variants?.reduce(
-      (acc: number, v: any) => acc + (v.inventory_quantity || 0),
+      (acc: number, v: Record<string, unknown>) =>
+        acc + (typeof v.inventory_quantity === 'number' ? v.inventory_quantity : 0),
       0
     );
 
@@ -76,8 +77,10 @@ export async function POST(req: Request) {
       image_src: p.images?.[0]?.src || null,
       image_position: p.images?.[0]?.position || null,
       image_alt_text: p.images?.[0]?.alt || null,
-      variant_image: firstVariant.image_id
-        ? p.images?.find((img: any) => img.id === firstVariant.image_id)?.src
+       variant_image : firstVariant.image_id
+        ? p.images?.find(
+          (img: { id: number; src: string }) => img.id === firstVariant.image_id
+        )?.src
         : null,
 
       gift_card: p.tags?.toLowerCase().includes("gift card") || false,
@@ -107,8 +110,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true }, { status: 200 });
-  } catch (error: any) {
-    console.error("❌ Webhook processing failed:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const e = error as { message?: string };
+    return NextResponse.json({ error: e.message || 'Unknown error' }, { status: 500 });
   }
 }
