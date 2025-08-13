@@ -11,8 +11,11 @@ export async function GET() {
 
     const products = await Product.findAll();
     return NextResponse.json(products);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+    return NextResponse.json({ error: 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -30,7 +33,7 @@ export async function POST(request: Request) {
 
     const store = await Store.findOne({ where: { shop } });
     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
-    
+
     //Queue me webhook creation
     // await publishToQueue('create-webhook', { shop, access_token: store.access_token });
     await createShopWebhooks(shop, store.access_token);
@@ -131,7 +134,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ count }, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (err: unknown) {
+    const e = err as { message?: string };
+    return NextResponse.json({ error: e.message || 'Unknown error' }, { status: 500 });
   }
 }

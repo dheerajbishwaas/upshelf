@@ -20,32 +20,32 @@ async function fetchOrders(shop: string, accessToken: string) {
   return data.orders;
 }
 
-async function saveOrders(shop: string, orders: any[]) {
-  for (const o of orders) {
-    await Order.upsert({
-      externalOrderId: o.id,
-      store: shop,
-      totalPrice: parseFloat(o.total_price) || 0,
-      createdAt: new Date(o.created_at),
-    });
-  }
-}
+// async function saveOrders(shop: string, orders: any[]) {
+//   for (const o of orders) {
+//     await Order.upsert({
+//       externalOrderId: o.id,
+//       store: shop,
+//       totalPrice: parseFloat(o.total_price) || 0,
+//       createdAt: new Date(o.created_at),
+//     });
+//   }
+// }
 
-export async function POST(req: Request) {
-  try {
-    const { shop } = await req.json();
+// export async function POST(req: Request) {
+//   try {
+//     const { shop } = await req.json();
 
-    await sequelize.authenticate();
-    await Order.sync();
+//     await sequelize.authenticate();
+//     await Order.sync();
 
-    const store = await Store.findOne({ where: { shop } });
-    if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
+//     const store = await Store.findOne({ where: { shop } });
+//     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
 
-    const orders = await fetchOrders(shop, store.accessToken);
-    await saveOrders(shop, orders);
+//     const orders = await fetchOrders(shop, store.accessToken);
+//     await saveOrders(shop, orders);
 
-    return NextResponse.json({ message: 'Orders synced successfully' }, { status: 200 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
+//     return NextResponse.json({ message: 'Orders synced successfully' }, { status: 200 });
+//   } catch (err: any) {
+//     return NextResponse.json({ error: err.message }, { status: 500 });
+//   }
+// }
