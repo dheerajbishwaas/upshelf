@@ -29,7 +29,7 @@ export default function HomePage() {
     // Shopify App Bridge init
     createApp({
       apiKey: process.env.NEXT_PUBLIC_SHOPIFY_API_KEY!,
-      shopOrigin: shop,
+      // shopOrigin: shop,
       host: host,
       forceRedirect: true,
     });
