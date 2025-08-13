@@ -27,12 +27,14 @@ export default function HomePage() {
     }
 
     // Shopify App Bridge init
+    const apiKey = process.env.NEXT_PUBLIC_SHOPIFY_API_KEY || '';
+
     createApp({
-      apiKey: process.env.NEXT_PUBLIC_SHOPIFY_API_KEY!,
-      // shopOrigin: shop,
-      host: host,
+      apiKey,
+      host,
       forceRedirect: true,
     });
+
 
     (async () => {
       const res = await fetch(`/api/check-install?shop=${shop}`);
