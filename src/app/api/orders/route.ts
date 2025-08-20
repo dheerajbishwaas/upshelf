@@ -4,7 +4,7 @@ import Order from '@/lib/models/order.model';
 import Store from '@/lib/models/store.model';
 
 async function fetchOrders(shop: string, access_token: string) {
-  const response = await fetch(`https://${shop}/admin/api/2023-07/orders.json?status=any`, {
+  const response = await fetch(`https://${shop}/admin/api/2025-01/orders.json?status=any`, {
     headers: {
       'X-Shopify-Access-Token': access_token,
       'Content-Type': 'application/json',
@@ -12,12 +12,14 @@ async function fetchOrders(shop: string, access_token: string) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch orders');
+    const errText = await response.text(); // capture Shopify error
+    throw new Error(`Failed to fetch orders: ${response.status} ${errText}`);
   }
 
   const data = await response.json();
   return data.orders as Record<string, unknown>[];
 }
+
 
 async function saveOrders(shop: string, orders: Record<string, unknown>[]) {
   for (const o of orders) {
