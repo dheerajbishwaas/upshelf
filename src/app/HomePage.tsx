@@ -79,11 +79,15 @@ export default function HomePage() {
     setMessage('');
 
     try {
-      const res = await fetch(`/api/sync-orders?shop=${shop}`, { method: 'POST' });
+      const res = await fetch(`/api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shop }),
+      });
       const data = await res.json();
 
       if (res.ok) {
-        setMessage(`✅ Orders synced successfully: ${data.count} orders`);
+        setMessage(`✅ Orders synced successfully`);
       } else {
         setMessage(`❌ Error syncing orders: ${data.error || 'Unknown error'}`);
       }
@@ -112,9 +116,8 @@ export default function HomePage() {
         <button
           onClick={handleImportProducts}
           disabled={loadingProducts}
-          className={`px-5 py-3 rounded-md text-white font-semibold transition ${
-            loadingProducts ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-          }`}
+          className={`px-5 py-3 rounded-md text-white font-semibold transition ${loadingProducts ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+            }`}
         >
           {loadingProducts ? 'Importing Products...' : 'Import Products'}
         </button>
@@ -122,9 +125,8 @@ export default function HomePage() {
         <button
           onClick={handleSyncOrders}
           disabled={loadingOrders}
-          className={`px-5 py-3 rounded-md text-white font-semibold transition ${
-            loadingOrders ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-          }`}
+          className={`px-5 py-3 rounded-md text-white font-semibold transition ${loadingOrders ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
         >
           {loadingOrders ? 'Syncing Orders...' : 'Sync Orders'}
         </button>
@@ -132,9 +134,8 @@ export default function HomePage() {
 
       {message && (
         <div
-          className={`p-4 rounded-md text-sm font-medium ${
-            message.startsWith('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-          }`}
+          className={`p-4 rounded-md text-sm font-medium ${message.startsWith('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }`}
           role="alert"
         >
           {message}
