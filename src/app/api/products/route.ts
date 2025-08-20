@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     // await publishToQueue('create-webhook', { shop, access_token: store.access_token });
     await createShopWebhooks(shop, store.access_token);
 
-    const response = await fetch(`https://${shop}/admin/api/2023-07/products.json`, {
+    const response = await fetch(`https://${shop}/admin/api/2025-01/products.json`, {
       headers: {
         'X-Shopify-Access-Token': store.access_token,
         'Content-Type': 'application/json',

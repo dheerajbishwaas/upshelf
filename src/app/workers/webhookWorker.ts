@@ -8,7 +8,7 @@ async function createWebhook(shop: string, access_token: string) {
 
   for (const webhook of webhookEvents) {
     try {
-      const res = await fetch(`https://${shop}/admin/api/2023-07/webhooks.json`, {
+      const res = await fetch(`https://${shop}/admin/api/2025-01/webhooks.json`, {
         method: 'POST',
         headers: {
           'X-Shopify-Access-Token': access_token,
