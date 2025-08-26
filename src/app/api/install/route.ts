@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   }
 
   const clientId = process.env.SHOPIFY_API_KEY;
-  const scopes = 'read_products,read_orders,read_customers';
+  const scopes = 'read_products,read_orders,read_analytics';
   const redirectUri = `${process.env.APP_URL}/api/auth/callback`;
 
   const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}&response_type=code`;

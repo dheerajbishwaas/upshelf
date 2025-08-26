@@ -35,7 +35,7 @@ export default function HomePage() {
     (async () => {
       const res = await fetch(`/api/check-install?shop=${shop}`);
       const data = await res.json();
-
+      console.log('Check install response:', data);
       if (!data.installed) {
         window.location.href = `/api/install?shop=${shop}`;
       }

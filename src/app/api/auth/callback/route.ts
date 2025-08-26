@@ -72,7 +72,7 @@ export async function GET(request: Request) {
         expires_at: data.expires_in || null,
         updatedAt: new Date(),
       });
-      const redirectUrl = `https://${shop}/admin/apps/upshelf`;
+      const redirectUrl = `https://${shop}/admin/apps/upshelf-1`;
       // const redirectUrl = `${process.env.APP_URL}/?shop=${shop}`;
       return NextResponse.redirect(redirectUrl);
     } else {
