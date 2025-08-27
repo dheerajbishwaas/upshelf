@@ -7,8 +7,9 @@ import OrderFulfillment from '@/lib/models/orderFulfillment.model';
 import OrderTaxLine from '@/lib/models/orderTaxLine.model';
 
 async function fetchOrders(shop: string, access_token: string) {
+  let apiVersion = process.env.SHOPIFY_API_VERSION;
   const response = await fetch(
-    `https://${shop}/admin/api/2025-01/orders.json?status=any`,
+    `https://${shop}/admin/api/${apiVersion}/orders.json?status=any`,
     {
       headers: {
         'X-Shopify-Access-Token': access_token,

@@ -5,10 +5,11 @@ async function createWebhook(shop: string, access_token: string) {
     { topic: 'products/delete', address: `${process.env.APP_URL}/api/webhooks/products/delete` },
     // { topic: 'orders/create', address: `${process.env.APP_URL}/api/webhooks/orders/create` }
   ];
+  let apiVersion = process.env.SHOPIFY_API_VERSION;
 
   for (const webhook of webhookEvents) {
     try {
-      const res = await fetch(`https://${shop}/admin/api/2025-01/webhooks.json`, {
+      const res = await fetch(`https://${shop}/admin/api/${apiVersion}/webhooks.json`, {
         method: 'POST',
         headers: {
           'X-Shopify-Access-Token': access_token,
