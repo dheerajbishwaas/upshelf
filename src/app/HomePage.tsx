@@ -130,6 +130,13 @@ export default function HomePage() {
         >
           {loadingOrders ? 'Syncing Orders...' : 'Sync Orders'}
         </button>
+
+        <button
+          onClick={() => router.push(`/analytics?shop=${shop}`)}
+          className="px-5 py-3 rounded-md text-white font-semibold transition bg-purple-600 hover:bg-purple-700"
+        >
+          View Product Analytics
+        </button>
       </div>
 
       {message && (

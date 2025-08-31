@@ -1,35 +1,21 @@
 import { NextResponse } from 'next/server';
 import sequelize from '@/lib/db';
-import { createShopWebhooks } from '@/app/workers/webhookWorker';
 import Product from '@/lib/models/product.model';
+import Variant from '@/lib/models/variant.model';
+import ProductImage from '@/lib/models/image.model';
 import Store from '@/lib/models/store.model';
-
-export async function GET() {
-  try {
-    await sequelize.authenticate();
-    await Product.sync();
-
-    const products = await Product.findAll();
-    return NextResponse.json(products);
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      return NextResponse.json({ error: err.message }, { status: 500 });
-    }
-    return NextResponse.json({ error: 'Unknown error' }, { status: 500 });
-  }
-}
+import { createShopWebhooks } from '@/app/workers/webhookWorker';
 
 export async function POST(request: Request) {
   const { searchParams } = new URL(request.url);
   const shop = searchParams.get('shop');
-
-  if (!shop) {
-    return NextResponse.json({ error: 'Missing shop parameter' }, { status: 400 });
-  }
+  if (!shop) return NextResponse.json({ error: 'Missing shop parameter' }, { status: 400 });
 
   try {
     await sequelize.authenticate();
     await Product.sync();
+    await Variant.sync();
+    await ProductImage.sync();
 
     const store = await Store.findOne({ where: { shop } });
     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
@@ -37,105 +23,135 @@ export async function POST(request: Request) {
     //Queue me webhook creation
     // await publishToQueue('create-webhook', { shop, access_token: store.access_token });
     await createShopWebhooks(shop, store.access_token);
-    let apiVersion = process.env.SHOPIFY_API_VERSION;
 
-    const response = await fetch(`https://${shop}/admin/api/${apiVersion}/products.json`, {
-      headers: {
-        'X-Shopify-Access-Token': store.access_token,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      return NextResponse.json({ error: 'Failed to fetch products from Shopify' }, { status: 500 });
-    }
+    const apiVersion = process.env.SHOPIFY_API_VERSION;
 
-    const data = await response.json();
-
+    let hasNextPage = true;
+    let endCursor: string | null = null;
     let count = 0;
-    for (const p of data.products) {
-      // For variants, usually array; take first variant as main or aggregate data as needed
-      const firstVariant = p.variants[0] || {};
+    let query = '';
+    while (hasNextPage) {
+      query = `
+      {
+        products(first: 50 ${endCursor ? `, after: "${endCursor}"` : ''}) {
+          edges {
+            cursor
+            node {
+              id
+              title
+              handle
+              vendor
+              productType
+              status
+              tags
+              descriptionHtml
+              variants(first: 50) {
+                edges {
+                  node {
+                    id
+                    title
+                    sku
+                    price
+                    compareAtPrice
+                    barcode
+                    inventoryQuantity
+                    inventoryPolicy
+                    taxable
+                    selectedOptions {
+                      name
+                      value
+                    }
+                    image {
+                      id
+                      url
+                    }
+                  }
+                }
+              }
+              images(first: 50) {
+                edges {
+                  node {
+                    id
+                    url
+                    altText
+                  }
+                }
+              }
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }`;
 
-      const totalInventory = p.variants.reduce(
-        (acc: number, v: { inventory_quantity?: number }) => acc + (v.inventory_quantity || 0),
-        0
-      );
-      await Product.upsert({
-        externalProductId: p.id,
-        store_id: store.id,
-        name: p.title,
-        price: parseFloat(firstVariant.price) || 0,
+      const response = await fetch(`https://${shop}/admin/api/${apiVersion}/graphql.json`, {
+        method: 'POST',
+        headers: {
+          'X-Shopify-Access-Token': store.access_token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      });
 
-        // New fields from Shopify product object:
-        handle: p.handle || null,
-        title: p.title || null,
-        body_html: p.body_html || null,
-        vendor: p.vendor || null,
-        product_category: p.product_type || null,  // Shopify calls it product_type
-        type: p.product_type || null,
-        tags: p.tags || null,
-        published: p.status === 'active',  // Shopify product status can be active/draft/archived
+      if (!response.ok) return NextResponse.json({ error: 'Failed to fetch products from Shopify' }, { status: 500 });
 
-        // Options (assuming max 3)
-        option1_name: p.options[0]?.name || null,
-        option1_value: firstVariant.option1 || null,
-        option2_name: p.options[1]?.name || null,
-        option2_value: firstVariant.option2 || null,
-        option3_name: p.options[2]?.name || null,
-        option3_value: firstVariant.option3 || null,
+      const result = await response.json();
+      const products = result.data.products.edges.map((e: any) => e.node);
 
-        // Variant details
-        variant_sku: firstVariant.sku || null,
-        variant_grams: firstVariant.grams || null,
-        variant_inventory_tracker: firstVariant.inventory_management || null,
-        variant_inventory_qty: totalInventory,
-        variant_inventory_policy: firstVariant.inventory_policy || null,
-        variant_fulfillment_service: firstVariant.fulfillment_service || null,
-        variant_price: parseFloat(firstVariant.price) || 0,
-        variant_compare_at_price: parseFloat(firstVariant.compare_at_price) || null,
-        variant_requires_shipping: firstVariant.requires_shipping || false,
-        variant_taxable: firstVariant.taxable || false,
-        variant_barcode: firstVariant.barcode || null,
+      for (const p of products) {
+        const [product] = await Product.upsert({
+          externalProductId: p.id.split('/').pop(),
+          store_id: store.id,
+          title: p.title,
+          handle: p.handle,
+          vendor: p.vendor,
+          body_html: p.descriptionHtml,
+          product_category: p.productType,
+          type: p.productType,
+          tags: p.tags?.join(', '),
+          published: p.status === 'ACTIVE',
+          status: p.status,
+        }, { returning: true });
 
         // Images
-        image_src: p.images[0]?.src || null,
-        image_position: p.images[0]?.position || null,
-        image_alt_text: p.images[0]?.alt || null,
-        variant_image: firstVariant.image_id
-          ? p.images.find((img: { id: number; src: string }) => img.id === firstVariant.image_id)?.src
-          : null,
+        for (const imgEdge of p.images.edges) {
+          const img = imgEdge.node;
+          await ProductImage.upsert({
+            product_id: product.id,
+            externalImageId: img.id.split('/').pop(),
+            url: img.url,
+            alt_text: img.altText || null,
+          });
+        }
 
+        // Variants
+        for (const vEdge of p.variants.edges) {
+          const v = vEdge.node;
+          await Variant.upsert({
+            externalVariantId: v.id.split('/').pop(),
+            product_id: product.id,
+            sku: v.sku,
+            price: parseFloat(v.price) || 0,
+            compare_at_price: parseFloat(v.compareAtPrice) || null,
+            inventory_qty: v.inventoryQuantity || 0,
+            inventory_policy: v.inventoryPolicy || null,
+            taxable: v.taxable || false,
+            requires_shipping: false,
+            option1: v.selectedOptions[0]?.value || null,
+            option2: v.selectedOptions[1]?.value || null,
+            option3: v.selectedOptions[2]?.value || null,
+            barcode: v.barcode || null,
+            variant_image_url: v.image?.url || null,
+          }, { returning: true });
+        }
 
-        // Gift card flag
-        gift_card: p.tags?.toLowerCase().includes('gift card') || false,
+        count++;
+      }
 
-        // SEO
-        seo_title: p.title || null,
-        seo_description: p.body_html || null,
-
-        // Google Shopping fields: (if you have metafields or tags for these, map accordingly)
-        google_shopping_product_category: null,
-        google_shopping_gender: null,
-        google_shopping_age_group: null,
-        google_shopping_mpn: null,
-        google_shopping_condition: null,
-        google_shopping_custom_product: null,
-
-        variant_weight_unit: firstVariant.weight_unit || null,
-        variant_tax_code: firstVariant.tax_code || null,
-        cost_per_item: firstVariant.cost || null,
-
-        // Pricing US and International - if you have multi-currency or custom logic, add here
-        included_united_states: null,
-        price_united_states: null,
-        compare_at_price_united_states: null,
-        included_international: null,
-        price_international: null,
-        compare_at_price_international: null,
-
-        status: p.status || null,
-      });
-      count++;
+      hasNextPage = result.data.products.pageInfo.hasNextPage;
+      endCursor = result.data.products.pageInfo.endCursor;
     }
 
     return NextResponse.json({ count }, { status: 200 });
