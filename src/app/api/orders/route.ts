@@ -29,8 +29,8 @@ async function fetchOrders(shop: string, access_token: string) {
 
 async function saveOrders(shop: string, orders: any[]) {
 
-  const store = await Store.findOne({ where: { shop } });
-  if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
+    const store = await Store.findOne({ where: { shop } });
+    if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });
 
 
   for (const o of orders) {
