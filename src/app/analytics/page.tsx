@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 'use client';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
