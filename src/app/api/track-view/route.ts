@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/track-view/route.ts
 import { NextResponse } from "next/server";
 // import ProductView from "@/lib/models/productView.model"; // you’ll need to create this

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import Store from '@/lib/models/store.model'; // tumhare model ka path
 
