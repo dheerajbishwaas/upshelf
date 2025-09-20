@@ -7,7 +7,7 @@ import OrderFulfillment from '@/lib/models/orderFulfillment.model';
 import OrderTaxLine from '@/lib/models/orderTaxLine.model';
 
 async function fetchOrders(shop: string, access_token: string) {
-  let apiVersion = process.env.SHOPIFY_API_VERSION;
+  const apiVersion = process.env.SHOPIFY_API_VERSION;
   const response = await fetch(
     `https://${shop}/admin/api/${apiVersion}/orders.json?status=any`,
     {
@@ -24,10 +24,10 @@ async function fetchOrders(shop: string, access_token: string) {
   }
 
   const data = await response.json();
-  return data.orders as any[];
+  return data.orders as unknown[];
 }
 
-async function saveOrders(shop: string, orders: any[]) {
+async function saveOrders(shop: string, orders: unknown[]) {
 
     const store = await Store.findOne({ where: { shop } });
     if (!store) return NextResponse.json({ error: 'Store not found' }, { status: 404 });

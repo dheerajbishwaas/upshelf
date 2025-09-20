@@ -93,7 +93,7 @@ export async function GET(request: Request) {
 
       const existingTags = await existingTagsRes.json();
       const alreadyExists = existingTags?.script_tags?.some(
-        (tag: any) => tag.src === scriptUrl
+        (tag: { src: string }) => tag.src === scriptUrl
       );
 
       if (!alreadyExists) {
