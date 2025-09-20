@@ -34,7 +34,11 @@ type AnalyticsData = {
   }[];
 };
 
-export default function AnalyticsDashboard({ shop }: { shop?: string }) {
+interface AnalyticsDashboardProps {
+  shop?: string;
+}
+
+export default function AnalyticsDashboard({ shop }: AnalyticsDashboardProps) {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
