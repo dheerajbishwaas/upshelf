@@ -25,9 +25,15 @@ export async function GET(req: Request) {
     } else {
       return NextResponse.json({ installed: false });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    let message = 'Server error';
+
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
     return NextResponse.json(
-      { error: error.message || 'Server error' },
+      { error: message },
       { status: 500 }
     );
   }
