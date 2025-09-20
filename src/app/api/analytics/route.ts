@@ -24,12 +24,19 @@ export async function GET(req: Request) {
     const products = await Product.findAll({
       where: { store_id: store.id },
       include: [{ model: Variant, as: 'variants' }],
-    });
+    }) as ProductWithVariants[];
+
+    type ProductWithVariants = Product & { 
+      variants?: Variant[];
+      published?: boolean; // Add this line
+      title?: string;      // Add if you use title below
+      externalProductId?: number; // Add if you use externalProductId below
+    };
 
     const totalProducts = products.length;
     const totalVariants = products.reduce(
-      (acc, p) => acc + ((p as any).variants?.length || 0), 
-        0
+      (acc, p) => acc + (p.variants?.length || 0),
+      0
     );
     const totalInventory = products.reduce(
       (acc, p) => acc + (p.variants?.reduce((vAcc, v) => vAcc + (v.inventory_qty || 0), 0) || 0),
