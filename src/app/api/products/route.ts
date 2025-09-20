@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import { NextResponse } from 'next/server';
 import sequelize from '@/lib/db';
 import Product from '@/lib/models/product.model';
