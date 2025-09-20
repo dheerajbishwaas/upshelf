@@ -98,7 +98,7 @@ export async function POST(request: Request) {
       if (!response.ok) return NextResponse.json({ error: 'Failed to fetch products from Shopify' }, { status: 500 });
 
       const result = await response.json();
-      const products = (result.data.products.edges as { node: any }[]).map(edge => edge.node);
+      const products = (result.data.products.edges as { node: unknown }[]).map(edge => edge.node);
 
       for (const p of products) {
         const [product] = await Product.upsert({
