@@ -5,7 +5,7 @@ async function createWebhook(shop: string, access_token: string) {
     { topic: 'products/delete', address: `${process.env.APP_URL}/api/webhooks/products/delete` },
     // { topic: 'orders/create', address: `${process.env.APP_URL}/api/webhooks/orders/create` }
   ];
-  let apiVersion = process.env.SHOPIFY_API_VERSION;
+  const apiVersion = process.env.SHOPIFY_API_VERSION;
 
   for (const webhook of webhookEvents) {
     try {
