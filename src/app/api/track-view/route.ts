@@ -1,6 +1,6 @@
 // app/api/track-view/route.ts
 import { NextResponse } from "next/server";
-import ProductView from "@/lib/models/productView.model"; // you’ll need to create this
+// import ProductView from "@/lib/models/productView.model"; // you’ll need to create this
 
 export async function POST(req: Request) {
   try {
@@ -11,11 +11,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing params" }, { status: 400 });
     }
 
-    await ProductView.create({
-      shop,
-      productId,
-      viewedAt: new Date(),
-    });
+    // await ProductView.create({
+    //   shop,
+    //   productId,
+    //   viewedAt: new Date(),
+    // });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
