@@ -34,14 +34,14 @@ type AnalyticsData = {
   }[];
 };
 
-export default function Page({ shop }: { shop?: string }) {
+export default function AnalyticsDashboard() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedProducts, setExpandedProducts] = useState<Record<string, boolean>>({});
 
-  shop = searchParams.get('shop') || shop || '';
+  const shop = searchParams.get('shop') || '';
 
   useEffect(() => {
     const fetchAnalytics = async () => {
