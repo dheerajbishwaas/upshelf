@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import React from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
@@ -38,7 +39,7 @@ interface AnalyticsDashboardProps {
   shop?: string;
 }
 
-export default function AnalyticsDashboard({ shop }: AnalyticsDashboardProps) {
+const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ shop }) => {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -178,3 +179,5 @@ export default function AnalyticsDashboard({ shop }: AnalyticsDashboardProps) {
     </div>
   );
 }
+
+export default AnalyticsDashboard;
