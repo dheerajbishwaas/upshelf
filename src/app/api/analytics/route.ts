@@ -27,7 +27,10 @@ export async function GET(req: Request) {
     });
 
     const totalProducts = products.length;
-    const totalVariants = products.reduce((acc, p) => acc + (p.variants?.length || 0), 0);
+    const totalVariants = products.reduce(
+      (acc, p) => acc + ((p as any).variants?.length || 0), 
+        0
+    );
     const totalInventory = products.reduce(
       (acc, p) => acc + (p.variants?.reduce((vAcc, v) => vAcc + (v.inventory_qty || 0), 0) || 0),
       0
